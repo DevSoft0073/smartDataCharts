@@ -18,6 +18,10 @@ const LazyChart = memo(({ color, filteredData, chartType }) => {
   const chartRef = useRef(null);
 
 
+  const {
+    currentSecond,
+  } = useTelemetry();
+
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -275,6 +279,18 @@ const LazyChart = memo(({ color, filteredData, chartType }) => {
                 dot={false}
                 isAnimationActive={false}
               />
+
+              <ReferenceLine
+                y={currentSecond}
+                stroke="red"
+                strokeDasharray="4 4"
+                label={{
+                  value: "Threshold 50",
+                  position: "right",
+                  fill: "#475569",
+                  fontSize: 10,
+                }}
+              />
             </LineChart>
           </ResponsiveContainer>
         </>
@@ -318,16 +334,16 @@ export default function ChartsGrid({ data = [], startTime, endTime, currentTime,
     visibleChartData
   } = useTelemetry();
 
-  const [debouncedCurrentSecond, setDebouncedCurrentSecond] = useState(currentSecond);
+  // const [debouncedCurrentSecond, setDebouncedCurrentSecond] = useState(currentSecond);
 
-  useEffect(() => {
-    // Debounce timer - update after 300ms of no changes
-    const timer = setTimeout(() => {
-      setDebouncedCurrentSecond(currentSecond);
-    }, 300);
+  // useEffect(() => {
+  //   // Debounce timer - update after 300ms of no changes
+  //   const timer = setTimeout(() => {
+  //     setDebouncedCurrentSecond(currentSecond);
+  //   }, 300);
 
-    return () => clearTimeout(timer);
-  }, [currentSecond]);
+  //   return () => clearTimeout(timer);
+  // }, [currentSecond]);
 
   // const vehicles = useMemo(() => {
   //   const colors = [
@@ -422,13 +438,13 @@ export default function ChartsGrid({ data = [], startTime, endTime, currentTime,
         gap: "16px",
         backgroundColor: "#ffffff",
         mt: 4,
-        flex:1,
+        flex: 1,
         overflowY: "auto",
       }}
     >
       {(visibleChartData).map(({ label, data, chartType }) => {
         // Memoize the current data point to avoid recalculating in JSX
-        const currentDataPoint = data.find(item => item.second === debouncedCurrentSecond) || {};
+        const currentDataPoint = data.find(item => item.second === currentSecond) || {};
         const { avgValue = 0, minValue = 0, maxValue = 0 } = currentDataPoint;
 
         return (
@@ -457,8 +473,8 @@ export default function ChartsGrid({ data = [], startTime, endTime, currentTime,
                 mb: 1.2,
                 color: "#444",
                 fontWeight: 500,
-                ml:2,
-                mr:2
+                ml: 2,
+                mr: 2
                 // p:2
               }}
             >
